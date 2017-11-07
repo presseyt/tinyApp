@@ -11,7 +11,7 @@ app.set("view engine", "ejs");
 
 app.get("/urls", (request,response) => {
   let templateVars = {urls: urlDatabase};
-  response.render("urls_index", templateVars);
+  response.render("urls_new", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
