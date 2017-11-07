@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ./partials/_header %>
+</head>
+<body>
+    There are the URLs: <br>
+
+    <ul>
+      <% Object.keys(urls).forEach(x=>{ %>
+          <li> <%=x%> , <%=urls[x]%> </li>
+      <% }) %>
+
+      <!-- <li> <a href= <%= urls.asdf %> > <%= urls.asdf%> </a> </li>
+      <li> <a href= <%= urls.sdfg %> > <%= urls.sdfg%> </a> </li> -->
+    </ul>
+
+    I can update this, right?
+</body>
+</html>
