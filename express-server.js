@@ -2,27 +2,28 @@ const express = require('express');
 const app = express();
 
 const bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({extended: true}));
+const cookieParser = require('cookie-parser');
+app.use(bodyParser.urlencoded({extended: true}))
+   .use(cookieParser());
 
-var PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8080;
 
 
-var urlDatabase = {
+const urlDatabase = {
   'asdf': 'http://google.ca',
   'sdfg': 'http://www.lighthouselabs.ca'
 };
 
 function generateRandomString(){
+  var charSet = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   let output = "";
   for(let i = 0; i < 6; i++){
-    let rnd = Math.floor(Math.random() * 36);
-    rnd = rnd < 10 ? rnd + 49 : rnd + 87;
-    output += String.fromCharCode(rnd);
+    let rnd = Math.floor(Math.random() * charSet.length);
+    output += charSet[rnd];
   }
   return output;
 }
 
-console.log(generateRandomString(), generateRandomString(), generateRandomString());
 
 app.set("view engine", "ejs");
 
@@ -34,7 +35,7 @@ app.post("/urls", (req, res) => {
   // console.log(req.body);  // debug statement to see POST parameters
   let shortString = generateRandomString();
   urlDatabase[shortString] = req.body.longURL;
-  res.redirect(`http://localhost:8080/urls/${shortString}`)         // Respond with 'Ok' (we will replace this)
+  res.redirect(`http://localhost:8080/urls/${shortString}`);         // Respond with 'Ok' (we will replace this)
 });
 
 app.post("/urls/:id/delete", (req, res) => {
@@ -47,13 +48,23 @@ app.post("/urls/:id/modify", (req, res) => {
   res.redirect(`http://localhost:8080/urls`);
 });
 
+app.post("/login", (req,res) => {
+  res.cookie('username', req.body.username);
+  res.redirect(`http://localhost:8080/urls`)
+});
+
 app.get("/urls", (request,response) => {
-  let templateVars = {urls: urlDatabase};
+  console.log('Cookies: ', request.cookies);
+
+  let templateVars = {urls: urlDatabase, username: request.cookies.username};
   response.render("urls_index", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
-  let templateVars = { shortURL: req.params.id, urls: urlDatabase};
+  let templateVars = { shortURL: req.params.id,
+                           urls: urlDatabase,
+                       username: request.params.username};
+
   res.render("urls_show", templateVars);
 });
 

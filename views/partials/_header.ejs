@@ -1,1 +1,13 @@
-<h1>Tiny App</h1>
+<div>
+  <h1>Tiny App</h1>
+    <form method="POST" action="/login">
+      <% if (!username){ %>
+        <input type="text" name="username">
+        <button>Login</button>
+      <% } else { %>
+        Current User: <%=username%>
+        <button name="username" value="">Logout</button>
+      <% } %>
+    </form>
+
+</div>
