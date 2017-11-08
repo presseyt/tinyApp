@@ -5,6 +5,7 @@
         <input type="text" name="username">
         <button>Login</button>
       <% } else { %>
+        <!-- The instructions said to POST to /logout (if the logout button is clicked) but this is functional so I'm leaving it. -->
         Current User: <%=username%>
         <button name="username" value="">Logout</button>
       <% } %>
