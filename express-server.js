@@ -37,6 +37,16 @@ app.post("/urls", (req, res) => {
   res.redirect(`http://localhost:8080/urls/${shortString}`)         // Respond with 'Ok' (we will replace this)
 });
 
+app.post("/urls/:id/delete", (req, res) => {
+  delete urlDatabase[req.params.id];
+  res.redirect(`http://localhost:8080/urls`);
+});
+
+app.post("/urls/:id/modify", (req, res) => {
+  urlDatabase[req.params.id] = req.body.newURL;
+  res.redirect(`http://localhost:8080/urls`);
+});
+
 app.get("/urls", (request,response) => {
   let templateVars = {urls: urlDatabase};
   response.render("urls_index", templateVars);

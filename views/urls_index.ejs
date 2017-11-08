@@ -9,7 +9,11 @@
 
     <ul>
       <% Object.keys(urls).forEach(x=>{ %>
-          <li> <%=x%> , <%=urls[x]%> </li>
+        <li> <%=x%> → <%=urls[x]%>  <a href="/urls/<%=x%>">Modify</a>
+          <form method="POST" action="/urls/<%=x%>/delete">
+            <input type="submit" value="Delete">
+          </form>
+        </li>
       <% }) %>
 
       <!-- <li> <a href= <%= urls.asdf %> > <%= urls.asdf%> </a> </li>
