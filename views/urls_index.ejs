@@ -4,22 +4,38 @@
   <title>TinyApp</title>
 </head>
 <body>
+  <div style="max-width: 900px;">
     <% include partials/_header %>
-    There are the URLs: <br>
 
-    <ul>
-      <% Object.keys(urls).forEach(x=>{ %>
-        <li> <%=x%> → <%=urls[x]%>  <a href="/urls/<%=x%>">Modify</a>
-          <form method="POST" action="/urls/<%=x%>/delete">
-            <input type="submit" value="Delete">
-          </form>
-        </li>
-      <% }) %>
+    <div>
+      Make a new URL <a href="http://localhost:8080/urls/new">here</a>. <br><br>
 
-      <!-- <li> <a href= <%= urls.asdf %> > <%= urls.asdf%> </a> </li>
-      <li> <a href= <%= urls.sdfg %> > <%= urls.sdfg%> </a> </li> -->
-    </ul>
+      Or use a previously shortened IRL!
 
-    I can update this, right?
+      <ul style="list-style-type: none;">
+        <% Object.keys(urls).forEach(x=>{ %>
+          <li>
+            <div style="width:75px; display: inline-block; text-align: left;">
+              <%=x%>
+            </div>
+            <div style="width:300px; display: inline-block;">
+              → <%=urls[x]%>
+            </div>
+            <!-- <a href="/urls/<%=x%>">Modify</a> -->
+            <form action="/urls/<%=x%>" style="display: inline-block;">
+              <input type="submit" value="Modify">
+            </form>
+            <form method="POST" action="/urls/<%=x%>/delete" style="display:inline-block;">
+              <input type="submit" value="Delete">
+            </form>
+          </li>
+        <% }) %>
+
+        <!-- <li> <a href= <%= urls.asdf %> > <%= urls.asdf%> </a> </li>
+        <li> <a href= <%= urls.sdfg %> > <%= urls.sdfg%> </a> </li> -->
+      </ul>
+
+    </div>
+  </div>
 </body>
 </html>

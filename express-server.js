@@ -28,7 +28,8 @@ function generateRandomString(){
 app.set("view engine", "ejs");
 
 app.get("/urls/new", (req,res) => {
-  res.render("urls_new");
+  let templateVars = {username: req.cookies.username};
+  res.render("urls_new", templateVars);
 });
 
 app.post("/urls", (req, res) => {
@@ -50,7 +51,7 @@ app.post("/urls/:id/modify", (req, res) => {
 
 app.post("/login", (req,res) => {
   res.cookie('username', req.body.username);
-  res.redirect(`http://localhost:8080/urls`)
+  res.redirect(`http://localhost:8080/urls`);
 });
 
 app.get("/urls", (request,response) => {
@@ -63,7 +64,7 @@ app.get("/urls", (request,response) => {
 app.get("/urls/:id", (req, res) => {
   let templateVars = { shortURL: req.params.id,
                            urls: urlDatabase,
-                       username: request.params.username};
+                       username: req.params.username};
 
   res.render("urls_show", templateVars);
 });
