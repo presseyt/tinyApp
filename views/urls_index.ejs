@@ -4,11 +4,11 @@
   <title>TinyApp</title>
 </head>
 <body>
-  <div style="max-width: 900px;">
+  <div style="max-width: 800px;">
     <% include partials/_header %>
 
     <div>
-      Make a new URL <a href="http://localhost:8080/urls/new">here</a>. <br><br>
+      Make a new URL <a href="http://localhost:8080/new">here</a>. <br><br>
 
       Or use a previously shortened IRL!
 
@@ -19,7 +19,7 @@
               <%=x%>
             </div>
             <div style="width:300px; display: inline-block;">
-              → <%=urls[x]%>
+              → <a href="<%=urls[x].link%>"><%=urls[x].link%></a>
             </div>
             <!-- <a href="/urls/<%=x%>">Modify</a> -->
             <form action="/urls/<%=x%>" style="display: inline-block;">

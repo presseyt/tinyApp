@@ -4,14 +4,17 @@
   <title>TinyApp</title>
 </head>
 <body>
-  <div style="max-width: 900px;">
+  <div style="max-width: 800px;">
     <% include partials/_header %>
 
+    Register:
     <form action="/register" method="POST">
       <input type="email" name="email" placeholder="email">
       <input type="password" name="password" placeholder="password">
       <input type="submit" value="Submit">
     </form>
+
+    Or <a href="/login">login</a>.
 
   </div>
 </body>

@@ -4,21 +4,27 @@
   <title>TinyApp</title>
 </head>
 <body>
-    <% include ./partials/_header %>
-    <p style="text-align: center; font-size: 200%;">
-      <a href= "/u/<%=shortURL%>" >
-        localhost:8080/u/<%=shortURL%>
-      </a>
-    </p>
-    <p>
-      now redirects to
-      <a href= <%=urls[shortURL]%> >
-          <%=urls[shortURL]%>
-      </a>
-    </p>
-    <form method="POST" action="/urls/<%=shortURL%>/modify">
-      <input type="text" name="newURL">
-      <input type="submit" Value="Change">
-    </form>
+  <div style="max-width: 800px">
+
+      <div style="max-width: 800px;">
+        <% include ./partials/_header %>
+        <p style="text-align: center; font-size: 200%;">
+          <a href= "/u/<%=shortURL%>" >
+            localhost:8080/u/<%=shortURL%>
+          </a>
+        </p>
+        <p>
+          now redirects to
+          <a href= <%=longURL%> >
+              <%=longURL%>
+          </a>
+        </p>
+        <form method="POST" action="/urls/<%=shortURL%>/modify">
+          <input type="text" name="newURL">
+          <input type="submit" Value="Change">
+        </form>
+      <div>
+
+  </div>
 </body>
 </html>

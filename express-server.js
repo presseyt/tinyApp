@@ -1,32 +1,65 @@
 const express = require('express');
 const app = express();
-
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+
+const checkLogin = function(req, res, next){
+  req.message = "I've been middleware'd";
+  console.log(req.method, req.path);
+  if (!req.cookies.user_id && req.method == "GET"){
+    if (req.path != "/login" && req.path != "/register" && !req.path.match(RegExp('/u/'))){
+      console.log('NO ACCESS');
+      res.redirect("/login");
+      return;
+    }
+  }
+  if (req.cookies.user_id && req.method == "POST"){
+    if (req.path !== "/login" && req.path !== "/register"){
+      if(!userExists(req.cookies.user_id)){
+        res.clearCookie(user_id);
+        res.redirect("/login");
+        return;
+      }
+    }
+  }
+  next();
+};
+
 app.use(bodyParser.urlencoded({extended: true}))
-   .use(cookieParser());
+   .use(cookieParser())
+   .use(checkLogin);
+
+app.set("view engine", "ejs");
 
 const PORT = process.env.PORT || 8080;
 
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//'DATABASES'
 
 const urlDatabase = {
-  'asdf': 'http://google.ca',
-  'sdfg': 'http://www.lighthouselabs.ca'
+  'asdf': {link: 'http://google.ca',
+           user_id: 'H5xp12'
+  },
+  'sdfg': {link: 'http://www.lighthouselabs.ca',
+           user_id: 'Ls00xG'
+  }
 };
 
 const users = {
-  "tim": {
-    id: "tim",
+  "H5xp12": {
+    id: "H5xp12",
     email: "user@example.com",
     password: "asdf"
   },
-  "user2": {
-    id: "user2",
+  "Ls00xG": {
+    id: "Ls00xG",
     email: "user2@emample.com",
     password: "asdf"
   }
 };
 
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//'Functions'
 
 function generateRandomString(){
   var charSet = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -38,80 +71,85 @@ function generateRandomString(){
   return output;
 }
 
+function getUserURLs(user_id){
+  const userURLs = {};
+  for (let shortURL in urlDatabase){
+    if (urlDatabase[shortURL].user_id === user_id){
+      userURLs[shortURL] = urlDatabase[shortURL];
+    }
+  }
+  return userURLs;
+}
 
-app.set("view engine", "ejs");
+function userMatchesLink(user, shortURL){
+  if (urlDatabase[shortURL]){
+    if (urlDatabase[shortURL].user_id == user){
+      return true;
+    }
+  }
+  return false;
+}
 
-app.get("/urls/new", (req,res) => {
+function userExists(user){
+  for(id in users){
+    if (user === id) return true;
+  }
+  return false;
+}
+
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//'app GET'
+
+app.get("/register", (req,res) => {
+  let templateVars = {user: users[req.cookies.user_id]};
+  res.render("register", templateVars);
+});
+
+app.get("/login", (req,res) => {
+  let templateVars = {user: users[req.cookies.user_id]};
+  res.render("login", templateVars);
+});
+
+app.get("/logout", (req,res) => {
+  res.clearCookie("user_id");
+  res.redirect("/login");
+});
+
+app.get("/urls", (req,res) => {
+  let templateVars = {urls: getUserURLs(req.cookies.user_id), user: users[req.cookies.user_id]};
+  res.render("urls_index", templateVars);
+});
+
+app.get("/urls/:id", (req,res) => {
+    let templateVars = { shortURL: req.params.id,
+                          longURL: urlDatabase[req.params.id].link,
+                             user: users[req.cookies.user_id]
+                       };
+  res.render("urls_show", templateVars);
+});
+
+app.get("/u/:shortURL", (req,res) => {
+  res.redirect(urlDatabase[req.params.shortURL].link);
+})
+
+app.get("/new", (req,res) => {
   let templateVars = {user: users[req.cookies.user_id]};
   res.render("urls_new", templateVars);
 });
 
-app.post("/urls", (req, res) => {
-  // console.log(req.body);  // debug statement to see POST parameters
-  let shortString = generateRandomString();
-  urlDatabase[shortString] = req.body.longURL;
-  res.redirect(`/urls/${shortString}`);         // Respond with 'Ok' (we will replace this)
-});
-
-app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
-  res.redirect(`/urls`);
-});
-
-app.post("/urls/:id/modify", (req, res) => {
-  urlDatabase[req.params.id] = req.body.newURL;
-  res.redirect(`/urls`);
-});
-
-app.post("/login", (req,res) => {
-  if (req.body.user_id === ""){
-    res.cookie("user_id", "");
-    res.redirect("/urls");
-    return;
-  }
-
-  for(user in users){
-    if (users[user].email === req.body.email && users[user].password === req.body.password){
-      res.cookie("user_id", user);
-      res.redirect(`/urls`);
-      return;
-    }
-  }
-  res.status(400).send({error: "login failed."});
-});
-
-app.get("/urls", (req,res) => {
-  let templateVars = {urls: urlDatabase, user: users[req.cookies.user_id]};
-  res.render("urls_index", templateVars);
-});
-
-app.get("/urls/:id", (req, res) => {
-  let templateVars = { shortURL: req.params.id,
-                           urls: urlDatabase,
-                           user: users[req.cookies.user_id]
-                      };
-
-  res.render("urls_show", templateVars);
-});
-
-app.get("/u/:shortURL", (req,res)=>{
-  let longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
-});
-
-app.get("/register", (req,res) => {
-  res.render("register", {user: users[req.cookies.user_id]});
-});
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//'app POST'
 
 app.post("/register", (req,res) => {
   //check that fields are not blank
   if ((!req.body.email) || (!req.body.password)){
-    res.status(400).send({error: "email & password required"});
+    res.status(400).send("Error: email & password required");
     return;
   }
   for(let user in users){
     if (users[user].email === req.body.email){
-      res.status(400).send({error: "email already exists"});
+      res.status(400).send("Error: email already exists");
       return;
     }
   }
@@ -125,12 +163,65 @@ app.post("/register", (req,res) => {
   res.redirect("/urls");
 });
 
-app.get("/login", (req,res) => {
-  res.render("login", {user: users[req.cookies.user_id]});
-})
+app.post("/login", (req,res) => {
+  for(user in users){
+    if (users[user].email === req.body.email && users[user].password === req.body.password){
+      res.cookie("user_id", user);
+      res.redirect(`/urls`);
+      return;
+    }
+  }
+  res.status(400).send("Error: login failed.");
+});
 
-console.log(`Listening on port ${PORT}!`);
+app.post("/logout", (req,res) => {
+  req.clearCookie("user_id");
+  res.redirect("/login");
+});
+
+app.post("/urls", (req,res) => {
+  let shortString = generateRandomString();
+  urlDatabase[shortString] = {link: req.body.longURL, user_id: req.cookies.user_id};
+  res.redirect(`/urls/${shortString}`);
+});
+
+app.post("/urls/:shortURL/modify", (req,res) => {
+  if (!userMatchesLink(req.cookies.user_id, req.params.shortURL)){
+    res.status(400).send("Error: you do not own this link");
+    return;
+  }
+  urlDatabase[req.params.shortURL] = {link: req.body.newURL, user_id: req.cookies.user_id};
+  res.redirect("/urls");
+});
+
+app.post("/urls/:shortURL/delete", (req,res) => {
+  if (!userMatchesLink(req.cookies.user_id, req.params.shortURL)){
+    res.status(400).send("Error: you do not own this link");
+    return;
+  }
+  delete urlDatabase[req.params.shortURL];
+  res.redirect("/urls");
+});
+
+
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//'start the server!'
+
+console.log(`listening on ${PORT}`);
 app.listen(PORT);
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
