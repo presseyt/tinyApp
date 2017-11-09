@@ -1,19 +1,19 @@
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
 
 const checkLogin = function(req, res, next){
   req.message = "I've been middleware'd";
 
   //remove an improper login
-  if(!userExists(req.cookies.user_id)){
-    res.clearCookie("user_id");
+  if(!userExists(req.session.user_id)){
+    req.session.user_id = "";
   }
 
   //Disallow any unauthenticated get requests to pages
-  if (!req.cookies.user_id && req.method == "GET"){
+  if (!req.session.user_id && req.method == "GET"){
     //except login, register and /u/shortURL:
     if (req.path != "/login" && req.path != "/register" && !req.path.match(RegExp('/u/') )){
       console.log('NO ACCESS');
@@ -22,7 +22,7 @@ const checkLogin = function(req, res, next){
     }
   }
 
-  if (req.method == "POST" && !req.cookies.user_id){
+  if (req.method == "POST" && !req.session.user_id){
     if (req.path != '/login' && req.path != '/register'){
       console.log("NOT ALLOWED");
       res.redirect("/login");
@@ -34,7 +34,7 @@ const checkLogin = function(req, res, next){
 };
 
 app.use(bodyParser.urlencoded({extended: true}))
-   .use(cookieParser())
+   .use(cookieSession({name: 'session', keys: ['pinwesedfa', 'nvuiapiub', 'piub12'], maxAge: 24*60*60*1000}))
    .use(checkLogin);
 
 app.set("view engine", "ejs");
@@ -110,29 +110,29 @@ function userExists(user){
 //'app GET'
 
 app.get("/register", (req,res) => {
-  let templateVars = {user: users[req.cookies.user_id]};
+  let templateVars = {user: users[req.session.user_id]};
   res.render("register", templateVars);
 });
 
 app.get("/login", (req,res) => {
-  let templateVars = {user: users[req.cookies.user_id]};
+  let templateVars = {user: users[req.session.user_id]};
   res.render("login", templateVars);
 });
 
 app.get("/logout", (req,res) => {
-  res.clearCookie("user_id");
+  req.session.user_id = "";
   res.redirect("/login");
 });
 
 app.get("/urls", (req,res) => {
-  let templateVars = {urls: getUserURLs(req.cookies.user_id), user: users[req.cookies.user_id]};
+  let templateVars = {urls: getUserURLs(req.session.user_id), user: users[req.session.user_id]};
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/:id", (req,res) => {
     let templateVars = { shortURL: req.params.id,
                           longURL: urlDatabase[req.params.id].link,
-                             user: users[req.cookies.user_id]
+                             user: users[req.session.user_id]
                        };
   res.render("urls_show", templateVars);
 });
@@ -142,7 +142,7 @@ app.get("/u/:shortURL", (req,res) => {
 })
 
 app.get("/new", (req,res) => {
-  let templateVars = {user: users[req.cookies.user_id]};
+  let templateVars = {user: users[req.session.user_id]};
   res.render("urls_new", templateVars);
 });
 
@@ -167,7 +167,7 @@ app.post("/register", (req,res) => {
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, 10)
   };
-  res.cookie('user_id', newID);
+  req.session.user_id = newID;
   res.redirect("/urls");
 });
 
@@ -175,7 +175,7 @@ app.post("/login", (req,res) => {
   console.log(users);
   for(user in users){
     if (users[user].email === req.body.email && bcrypt.compareSync(req.body.password, users[user].password)){
-      res.cookie("user_id", user);
+      req.session.user_id = user;
       res.redirect(`/urls`);
       return;
     }
@@ -184,27 +184,27 @@ app.post("/login", (req,res) => {
 });
 
 app.post("/logout", (req,res) => {
-  req.clearCookie("user_id");
+  req.session.user_id = "";   ///clear cookie somehow?
   res.redirect("/login");
 });
 
 app.post("/urls", (req,res) => {
   let shortString = generateRandomString();
-  urlDatabase[shortString] = {link: req.body.longURL, user_id: req.cookies.user_id};
+  urlDatabase[shortString] = {link: req.body.longURL, user_id: req.session.user_id};
   res.redirect(`/urls/${shortString}`);
 });
 
 app.post("/urls/:shortURL/modify", (req,res) => {
-  if (!userMatchesLink(req.cookies.user_id, req.params.shortURL)){
+  if (!userMatchesLink(req.session.user_id, req.params.shortURL)){
     res.status(400).send("Error: you do not own this link");
     return;
   }
-  urlDatabase[req.params.shortURL] = {link: req.body.newURL, user_id: req.cookies.user_id};
+  urlDatabase[req.params.shortURL] = {link: req.body.newURL, user_id: req.session.user_id};
   res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL/delete", (req,res) => {
-  if (!userMatchesLink(req.cookies.user_id, req.params.shortURL)){
+  if (!userMatchesLink(req.session.user_id, req.params.shortURL)){
     res.status(400).send("Error: you do not own this link");
     return;
   }
