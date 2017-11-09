@@ -5,23 +5,30 @@ const cookieParser = require('cookie-parser');
 
 const checkLogin = function(req, res, next){
   req.message = "I've been middleware'd";
-  console.log(req.method, req.path);
+
+  //remove an improper login
+  if(!userExists(req.cookies.user_id)){
+    res.clearCookie("user_id");
+  }
+
+  //Disallow any unauthenticated get requests to pages
   if (!req.cookies.user_id && req.method == "GET"){
-    if (req.path != "/login" && req.path != "/register" && !req.path.match(RegExp('/u/'))){
+    //except login, register and /u/shortURL:
+    if (req.path != "/login" && req.path != "/register" && !req.path.match(RegExp('/u/') )){
       console.log('NO ACCESS');
       res.redirect("/login");
       return;
     }
   }
-  if (req.cookies.user_id && req.method == "POST"){
-    if (req.path !== "/login" && req.path !== "/register"){
-      if(!userExists(req.cookies.user_id)){
-        res.clearCookie(user_id);
-        res.redirect("/login");
-        return;
-      }
+
+  if (req.method == "POST" && !req.cookies.user_id){
+    if (req.path != '/login' && req.path != '/register'){
+      console.log("NOT ALLOWED");
+      res.redirect("/login");
+      return;
     }
   }
+
   next();
 };
 
