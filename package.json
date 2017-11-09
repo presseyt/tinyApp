@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/presseyt/tinyApp#readme",
   "dependencies": {
+    "bcrypt": "^1.0.3",
     "body-parser": "^1.18.2",
     "cookie-parser": "^1.4.3",
     "ejs": "^2.5.7",

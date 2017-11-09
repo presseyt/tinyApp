@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const bcrypt = require('bcrypt');
 
 const checkLogin = function(req, res, next){
   req.message = "I've been middleware'd";
@@ -56,12 +57,12 @@ const users = {
   "H5xp12": {
     id: "H5xp12",
     email: "user@example.com",
-    password: "asdf"
+    password: bcrypt.hashSync("asdf",10)
   },
   "Ls00xG": {
     id: "Ls00xG",
     email: "user2@emample.com",
-    password: "asdf"
+    password: bcrypt.hashSync("asdf",10)
   }
 };
 
@@ -164,15 +165,16 @@ app.post("/register", (req,res) => {
   users[newID] = {
     id: newID,
     email: req.body.email,
-    password: req.body.password
+    password: bcrypt.hashSync(req.body.password, 10)
   };
   res.cookie('user_id', newID);
   res.redirect("/urls");
 });
 
 app.post("/login", (req,res) => {
+  console.log(users);
   for(user in users){
-    if (users[user].email === req.body.email && users[user].password === req.body.password){
+    if (users[user].email === req.body.email && bcrypt.compareSync(req.body.password, users[user].password)){
       res.cookie("user_id", user);
       res.redirect(`/urls`);
       return;
