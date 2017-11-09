@@ -5,15 +5,15 @@
 </head>
 <body>
     <% include ./partials/_header %>
-    <p>
-      The URL
-      <a href= <%=urls[shortURL]%> >
-          <%=urls[shortURL]%>
-      </a> has been shortened to
-    </p>
     <p style="text-align: center; font-size: 200%;">
       <a href= "/u/<%=shortURL%>" >
         localhost:8080/u/<%=shortURL%>
+      </a>
+    </p>
+    <p>
+      now redirects to
+      <a href= <%=urls[shortURL]%> >
+          <%=urls[shortURL]%>
       </a>
     </p>
     <form method="POST" action="/urls/<%=shortURL%>/modify">
