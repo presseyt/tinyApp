@@ -14,6 +14,20 @@ const urlDatabase = {
   'sdfg': 'http://www.lighthouselabs.ca'
 };
 
+const users = {
+  "tim": {
+    id: "tim",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+  "user2": {
+    id: "user2",
+    email: "user2@emample.com",
+    password: "diswasher-funk"
+  }
+};
+
+
 function generateRandomString(){
   var charSet = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   let output = "";
@@ -54,11 +68,9 @@ app.post("/login", (req,res) => {
   res.redirect(`http://localhost:8080/urls`);
 });
 
-app.get("/urls", (request,response) => {
-  console.log('Cookies: ', request.cookies);
-
-  let templateVars = {urls: urlDatabase, username: request.cookies.username};
-  response.render("urls_index", templateVars);
+app.get("/urls", (req,res) => {
+  let templateVars = {urls: urlDatabase, username: req.cookies.username};
+  res.render("urls_index", templateVars);
 });
 
 app.get("/urls/:id", (req, res) => {
@@ -72,6 +84,33 @@ app.get("/urls/:id", (req, res) => {
 app.get("/u/:shortURL", (req,res)=>{
   let longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
+});
+
+app.get("/register", (req,res) => {
+  res.render("register", {username: req.cookies.username});
+});
+
+app.post("/register", (req,res) => {
+  //check that fields are not blank
+  if ((!req.body.email) || (!req.body.password)){
+    res.status(400).send({error: "email & password required"});
+    return;
+  }
+  for(let user in users){
+    if (users[user].email === req.body.email){
+      res.status(400).send({error: "email already exists"});
+      return;
+    }
+  }
+  let newID = generateRandomString();
+  users[newID] = {
+    id: newID,
+    email: req.body.email,
+    password: req.body.password
+  };
+  console.log(users[newID]);
+  res.cookie('user_id', newID);
+  res.redirect("/urls");
 });
 
 console.log(`Listening on port ${PORT}!`);
