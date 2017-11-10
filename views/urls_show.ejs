@@ -19,7 +19,7 @@
               <%=longURL%>
           </a>
         </p>
-        <form method="POST" action="/urls/<%=shortURL%>/modify">
+        <form method="POST" action="/urls/<%=shortURL%>?_method=PUT">
           <label for="newURL">Make your tiny<small>URL</small> link to a new page: </label>
           <input type="text" name="newURL">
           <input type="submit" Value="Change">

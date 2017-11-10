@@ -3,6 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const cookieSession = require('cookie-session');
 const bcrypt = require('bcrypt');
+const methodOverride = require('method-override');
 
 const checkLogin = function(req, res, next){
   req.message = "I've been middleware'd";
@@ -22,7 +23,9 @@ const checkLogin = function(req, res, next){
     }
   }
 
+  //disallow any unauthenitcated post requests
   if (req.method == "POST" && !req.session.user_id){
+    //except for login and register
     if (req.path != '/login' && req.path != '/register'){
       console.log("NOT ALLOWED");
       res.redirect("/login");
@@ -33,7 +36,8 @@ const checkLogin = function(req, res, next){
   next();
 };
 
-app.use(bodyParser.urlencoded({extended: true}))
+app.use(methodOverride('_method'))
+   .use(bodyParser.urlencoded({extended: true}))
    .use(cookieSession({name: 'session', keys: ['pinwesedfa', 'nvuiapiub', 'piub12'], maxAge: 24*60*60*1000}))
    .use(checkLogin);
 
@@ -194,7 +198,11 @@ app.post("/urls", (req,res) => {
   res.redirect(`/urls/${shortString}`);
 });
 
-app.post("/urls/:shortURL/modify", (req,res) => {
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//app PUT
+
+app.put("/urls/:shortURL", (req,res) => {
+  console.log("This is a PUT!");
   if (!userMatchesLink(req.session.user_id, req.params.shortURL)){
     res.status(400).send("Error: you do not own this link");
     return;
@@ -203,7 +211,11 @@ app.post("/urls/:shortURL/modify", (req,res) => {
   res.redirect("/urls");
 });
 
-app.post("/urls/:shortURL/delete", (req,res) => {
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//app DELETE
+
+app.delete("/urls/:shortURL", (req,res) => {
+  console.log("This is a DELETE!");
   if (!userMatchesLink(req.session.user_id, req.params.shortURL)){
     res.status(400).send("Error: you do not own this link");
     return;
@@ -211,7 +223,6 @@ app.post("/urls/:shortURL/delete", (req,res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls");
 });
-
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //start the server!
