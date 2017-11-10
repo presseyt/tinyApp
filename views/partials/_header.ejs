@@ -9,7 +9,9 @@
       <a href="/register">Register</a>
     <% } else { %>
       Current User: <%=user.email%> <br>
-      <a method="POST" href="/logout">Logout</a>
+      <form method="POST" action="/logout">
+        <input type="submit" value="Logout">
+      </form>
     <% } %>
   </div>
 </div>

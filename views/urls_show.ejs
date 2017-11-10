@@ -6,25 +6,45 @@
 <body>
   <div style="max-width: 800px; margin: auto;">
 
-      <div style="max-width: 800px;">
-        <% include ./partials/_header %>
-        <p style="text-align: center; font-size: 200%;">
-          <a href= "/u/<%=shortURL%>" >
-            localhost:8080/u/<%=shortURL%>
-          </a>
-        </p>
-        <p>
-          now redirects to
-          <a href= <%=longURL%> >
-              <%=longURL%>
-          </a>
-        </p>
-        <form method="POST" action="/urls/<%=shortURL%>?_method=PUT">
-          <label for="newURL">Make your tiny<small>URL</small> link to a new page: </label>
-          <input type="text" name="newURL">
-          <input type="submit" Value="Change">
-        </form>
-      <div>
+
+    <% include ./partials/_header %>
+    <p style="text-align: center; font-size: 200%;">
+      <a href= "/u/<%=shortURL%>" >
+        localhost:8080/u/<%=shortURL%>
+      </a>
+    </p>
+    <p>
+      redirects to
+      <a href= <%=urlInfo.link%> >
+          <%=urlInfo.link%>
+      </a>
+    </p>
+
+
+    <% if(userOwnsLink){ %>
+      <form method="POST" action="/urls/<%=shortURL%>?_method=PUT">
+        <label for="newURL">Make your tiny<small>URL</small> link to a new page: </label>
+        <input type="text" name="newURL">
+        <input type="submit" Value="Change">
+      </form>
+
+      <br><br>
+      <h4>Analytics</h4>
+      <p>Visits: <%=urlInfo.visits.length%> </p>
+      <p>Unique visits: <%=new Set(urlInfo.visits.map(x=>x.visitor_id)).size%></p>
+      <%if (urlInfo.visits.length > 0){ %>
+        <%if (urlInfo.visits.length > 5) { %>
+          <p>Most recent visits</p>
+        <%}%>
+        <%for(let i = 0; i < 5 && i < urlInfo.visits.length; i++){%>
+          <p style="padding-left: 10px;">
+            Visitor ID: <%=urlInfo.visits[i].visitor_id%>  Time: <%=urlInfo.visits[i].time.toLocaleString()%>
+          </p>
+      <%}}%>
+
+    <% } else { %>
+      You do not have permission to change this link.
+    <% } %>
 
   </div>
 </body>
