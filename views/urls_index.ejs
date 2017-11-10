@@ -12,7 +12,7 @@
 
       Your tiny<small>URL</small>s:
 
-      <div style="text-align: center;">
+      <div>
         <%if (Object.keys(urls).length === 0) { %>
             You have no tinyURLs.
         <%}%>
@@ -24,7 +24,11 @@
                 <%=x%>
               </div>
               <div style="width:300px; display: inline-block; text-align: left;">
-                → <a href="<%=urls[x].link%>"><%=urls[x].link%></a>
+                <% if (urls[x].link.length <= 35) { %>
+                  → <a href="<%=urls[x].link%>"><%=urls[x].link%></a>
+                <% } else { %>
+                  → <a href="<%=urls[x].link%>"><%=urls[x].link.substr(0,32)%>...</a>
+                <% } %>
               </div>
 
               <div style="display: inline-block;">

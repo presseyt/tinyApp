@@ -6,26 +6,20 @@ const bcrypt = require('bcrypt');
 const methodOverride = require('method-override');
 
 const checkLogin = function(req, res, next){
-  req.message = "I've been middleware'd";
-
-  //remove an improper login
-  if(!userExists(req.session.user_id)){
-    req.session.user_id = "";
-  }
-
-  //Disallow any unauthenticated get requests to pages
-  if (!req.session.user_id && req.method == "GET"){
+  //Disallow any unauthenticated requests to pages
+  if (!req.session.user_id){
     //except login, register and /u/shortURL:
     if (req.path != "/login" && req.path != "/register" && !req.path.match(RegExp('/u/') )){
       res.redirect("/login");
       return;
     }
-  }
 
-  //disallow any unauthenitcated post requests
-  if (req.method == "POST" && !req.session.user_id){
-    //except for login and register
-    if (req.path != '/login' && req.path != '/register'){
+  }
+  else{
+    //remove an improper login.
+      //(With encrypted cookies, this is probably overkill)
+    if(!userExists(req.session.user_id)){
+      req.session = null;
       res.redirect("/login");
       return;
     }
@@ -168,8 +162,8 @@ app.get("/u/:shortURL", (req,res) => {
     res.status(404).send("404 Link does not exist");
     return;
   }
-  doAnalytics(req, req.params.shortURL);
   res.redirect(urlDatabase[req.params.shortURL].link);
+  doAnalytics(req, req.params.shortURL);
 });
 
 app.get("/new", (req,res) => {
@@ -219,7 +213,6 @@ app.post("/login", (req,res) => {
 
 app.post("/logout", (req,res) => {
   req.session = null;
-  //req.session.user_id = "";   ///clear cookie somehow?
   res.redirect("/login");
 });
 
@@ -237,7 +230,7 @@ app.put("/urls/:shortURL", (req,res) => {
     res.status(400).send("Error: you do not own this link");
     return;
   }
-  urlDatabase[req.params.shortURL] = {link: req.body.newURL, user_id: req.session.user_id};
+  urlDatabase[req.params.shortURL].link = req.body.newURL;
   res.redirect("/urls");
 });
 
