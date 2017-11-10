@@ -4,36 +4,42 @@
   <title>TinyApp</title>
 </head>
 <body>
-  <div style="max-width: 800px;">
+  <div style="max-width: 800px; margin: auto;">
     <% include partials/_header %>
 
     <div>
-      Make a new URL <a href="http://localhost:8080/new">here</a>. <br><br>
+      Make a new tiny<small>URL</small> <a href="/new">here</a>. <br><br>
 
-      Or use a previously shortened IRL!
+      Your tiny<small>URL</small>s:
 
-      <ul style="list-style-type: none;">
-        <% Object.keys(urls).forEach(x=>{ %>
-          <li>
-            <div style="width:75px; display: inline-block; text-align: left;">
-              <%=x%>
-            </div>
-            <div style="width:300px; display: inline-block;">
-              → <a href="<%=urls[x].link%>"><%=urls[x].link%></a>
-            </div>
-            <!-- <a href="/urls/<%=x%>">Modify</a> -->
-            <form action="/urls/<%=x%>" style="display: inline-block;">
-              <input type="submit" value="Modify">
-            </form>
-            <form method="POST" action="/urls/<%=x%>/delete" style="display:inline-block;">
-              <input type="submit" value="Delete">
-            </form>
-          </li>
-        <% }) %>
+      <div style="text-align: center;">
+        <%if (Object.keys(urls).length === 0) { %>
+            You have no tinyURLs.
+        <%}%>
 
-        <!-- <li> <a href= <%= urls.asdf %> > <%= urls.asdf%> </a> </li>
-        <li> <a href= <%= urls.sdfg %> > <%= urls.sdfg%> </a> </li> -->
-      </ul>
+        <ul style="list-style-type: none;">
+          <% Object.keys(urls).forEach(x=>{ %>
+            <li>
+              <div style="width:75px; display: inline-block; text-align: left;">
+                <%=x%>
+              </div>
+              <div style="width:300px; display: inline-block; text-align: left;">
+                → <a href="<%=urls[x].link%>"><%=urls[x].link%></a>
+              </div>
+
+              <div style="display: inline-block;">
+                <form action="/urls/<%=x%>" style="display: inline-block;">
+                  <input type="submit" value="Modify">
+                </form>
+                <form method="POST" action="/urls/<%=x%>/delete" style="display:inline-block;">
+                  <input type="submit" value="Delete">
+                </form>
+              </div>
+            </li>
+          <% }) %>
+        </ul>
+
+      </div>
 
     </div>
   </div>

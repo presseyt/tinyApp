@@ -42,7 +42,7 @@ app.set("view engine", "ejs");
 const PORT = process.env.PORT || 8080;
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//'DATABASES'
+//"DATABASES"
 
 const urlDatabase = {
   'asdf': {link: 'http://google.ca',
@@ -67,7 +67,7 @@ const users = {
 };
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//'Functions'
+//Functions
 
 function generateRandomString(){
   var charSet = "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -107,7 +107,7 @@ function userExists(user){
 
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//'app GET'
+//app GET
 
 app.get("/register", (req,res) => {
   let templateVars = {user: users[req.session.user_id]};
@@ -147,7 +147,7 @@ app.get("/new", (req,res) => {
 });
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//'app POST'
+//app POST
 
 app.post("/register", (req,res) => {
   //check that fields are not blank
@@ -214,7 +214,7 @@ app.post("/urls/:shortURL/delete", (req,res) => {
 
 
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-//'start the server!'
+//start the server!
 
 console.log(`listening on ${PORT}`);
 app.listen(PORT);

@@ -4,7 +4,7 @@
   <title>TinyApp</title>
 </head>
 <body>
-  <div style="max-width: 800px">
+  <div style="max-width: 800px; margin: auto;">
 
       <div style="max-width: 800px;">
         <% include ./partials/_header %>
@@ -20,6 +20,7 @@
           </a>
         </p>
         <form method="POST" action="/urls/<%=shortURL%>/modify">
+          <label for="newURL">Make your tiny<small>URL</small> link to a new page: </label>
           <input type="text" name="newURL">
           <input type="submit" Value="Change">
         </form>
